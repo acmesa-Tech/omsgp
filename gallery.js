@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFavorites(category) {
         try {
-            const response = await fetch(apiUrl + 'api/favorites');
+            const response = await fetch(urlapi + 'api/favorites');  // Corrected: use urlapi
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function unfavorite(id) {
-        fetch(apiUrl + 'api/favorites')
+        fetch(urlapi + 'api/favorites')  // Corrected: use urlapi
             .then(response => response.json())
             .then(favorites => {
                 const updated = favorites.filter(fav => fav.id !== id);
@@ -61,12 +61,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    /*
     function saveFavorites(favorites) {
-        fetch(apiUrl + '/api/update-favs', {
+        fetch(urlapi + '/api/update-favs', {  // Corrected: use urlapi
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(favorites),
         }).then(() => loadFavorites(document.querySelector('input[name="category"]:checked').value));
+    }
+    */
+
+    async function saveFavorites(favorites) {
+        try {
+            const response = await fetch(urlapi + 'api/update-favs', {  // Correct the URL
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'  // Ensure the correct header is set
+                },
+                body: JSON.stringify(favorites)  // Send the favorites data as JSON
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            // Reload favorites after saving
+            loadFavorites();
+        } catch (error) {
+            console.error('Error saving favorites:', error);
+            galleryContainer.innerHTML = "<p>Error saving favorites. Please try again later.</p>";
+        }
     }
 
     categoryRadios.forEach(radio => {
